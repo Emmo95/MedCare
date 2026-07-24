@@ -2,7 +2,7 @@
 
 ## Azure Cloud Platform & Hybrid Infrastructure
 
-MedCare is a healthcare organization with locations across the Netherlands, including Amsterdam, Rotterdam, The Hague, Utrecht and additional locations.
+MedCare is a healthcare organization with locations across the Netherlands, including Amsterdam, Rotterdam, The Hague, Utrecht and additional regional locations in Groningen, Arnhem and Maastricht.
 
 Thousands of healthcare employees work across these locations and rely on MedCare's IT environment for their daily work. This includes internal applications, company provided mobile devices, connected healthcare devices and communication systems used to deliver important healthcare alarms and notifications.
 
