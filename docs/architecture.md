@@ -4,7 +4,18 @@
 
 The MedCare Azure environment is designed as a hybrid cloud platform.
 
-The goal is to provide a central Azure foundation for cloud workloads while maintaining secure connectivity with MedCare's existing on-premises infrastructure.
+The goal is to provide a central Azure foundation for cloud workloads while maintaining secure connectivity with MedCare's existing on-premises infrastructure and healthcare locations.
+
+MedCare operates across multiple locations in the Netherlands, including:
+
+* Amsterdam
+* Rotterdam
+* The Hague
+* Utrecht
+* Groningen
+* Arnhem
+* Maastricht
+* Additional regional locations in the future
 
 The architecture is designed around:
 
@@ -15,6 +26,7 @@ The architecture is designed around:
 * Private access to internal services
 * Centralized monitoring
 * Infrastructure as Code
+* Support for multiple healthcare locations
 
 The platform will use a hub-and-spoke network model to separate shared services from individual workloads.
 
@@ -23,40 +35,52 @@ The platform will use a hub-and-spoke network model to separate shared services 
 ## High-Level Architecture
 
 ```text
-                         INTERNET
-                             |
-                             v
-                    Public Applications
-                             |
-                             v
-                    Azure Workloads
-                             |
-                             |
-                  +----------+----------+
-                  |                     |
-                  v                     v
-             Application              Data
-               Spoke                  Spoke
-                  |                     |
-                  +----------+----------+
-                             |
-                             v
-                         Hub VNet
-                  +----------+----------+
-                  |                     |
-                  v                     v
-            Shared Services       Hybrid Connectivity
-                                        |
-                                        v
-                              On-Premises Environment
-                                        |
-                         +--------------+--------------+
-                         |              |              |
-                         v              v              v
-                      Servers       Networks       Locations
+                              INTERNET
+                                  |
+                                  v
+                         Public Applications
+                                  |
+                                  v
+                          Azure Workloads
+                                  |
+                       +----------+----------+
+                       |                     |
+                       v                     v
+                  Workload Spokes       Shared Services
+                       |                     |
+                       +----------+----------+
+                                  |
+                                  v
+                              Hub VNet
+                       +----------+----------+
+                       |                     |
+                       v                     v
+                Network Services       Hybrid Connectivity
+                                             |
+                                             v
+                                   On-Premises Environment
+                                             |
+                          +------------------+------------------+
+                          |                  |                  |
+                          v                  v                  v
+                  Central Infrastructure   Networks       Healthcare Locations
+                          |                                      |
+                          |                    +-----------------+------------------+
+                          |                    |        |        |        |        |
+                          v                    v        v        v        v        v
+                       Servers             Amsterdam Rotterdam The Hague Utrecht  Other Sites
+                                              |
+                                              +── Groningen
+                                              +── Arnhem
+                                              +── Maastricht
+                                              +── Future Locations
 ```
 
-The exact architecture will evolve as the platform is implemented.
+The exact architecture will evolve as the platform is implemented and the detailed network and security requirements are defined.
+
+The infrastructure supporting MedCare's communication systems is considered operationally important. These systems support the delivery of healthcare alarms and notifications to employees across MedCare locations.
+
+The Azure platform does not directly replace these systems as part of the initial project. However, the wider architecture must provide the network reliability, availability, monitoring, and connectivity required to support the environment.
 
 ---
 
@@ -113,20 +137,22 @@ These may include:
 
 ### Spokes
 
-Spoke networks isolate workloads based on their function.
+Spoke networks isolate workloads and services according to their security, connectivity, and operational requirements.
 
-Examples include:
+The final spoke structure will be defined during the detailed network design phase.
+
+Possible workload boundaries may include:
 
 ```text
 Hub
 │
-├── Application Spoke
+├── Application Workloads
 │
-├── Data Spoke
+├── Data Services
 │
-├── Management Spoke
+├── Management Services
 │
-└── Integration Spoke
+└── Integration Services
 ```
 
 Spokes should not communicate with each other directly unless there is a defined requirement.
@@ -137,7 +163,7 @@ Traffic between environments and workloads is controlled through centralized net
 
 ## Hybrid Connectivity
 
-The Azure environment must communicate with MedCare's existing on-premises infrastructure.
+The Azure environment must communicate with MedCare's existing on-premises infrastructure and healthcare locations.
 
 The initial architecture will use secure VPN connectivity between Azure and the on-premises environment.
 
@@ -150,15 +176,28 @@ VPN Gateway
   | Encrypted Connection
   |
   v
-On-Premises Network
+Central On-Premises Network
   |
   +── Servers
   +── Active Directory
   +── Internal Applications
+  +── Communication Infrastructure
+  |
   +── Healthcare Locations
+       |
+       +── Amsterdam
+       +── Rotterdam
+       +── The Hague
+       +── Utrecht
+       +── Groningen
+       +── Arnhem
+       +── Maastricht
+       +── Future Locations
 ```
 
 The architecture should allow additional locations and connectivity options to be introduced later.
+
+The detailed connectivity model, routing, IP addressing, DNS, and network segmentation will be defined in the network design documentation.
 
 ---
 
@@ -200,6 +239,8 @@ Workloads requiring traditional server infrastructure may remain on virtual mach
 
 The architecture does not assume that every workload should be migrated to Azure.
 
+Workloads will be evaluated based on their technical requirements, security requirements, operational importance, and dependency on existing infrastructure.
+
 ---
 
 ## Security Architecture
@@ -231,11 +272,13 @@ Internal services should use private connectivity wherever practical.
 
 Public access should only be introduced where required by the application or business.
 
+Security requirements for the Azure platform and hybrid environment will be defined in the security design documentation.
+
 ---
 
 ## Monitoring Architecture
 
-Monitoring is centralized to provide visibility across the Azure environment.
+Monitoring is centralized to provide visibility across the Azure environment and, where possible, the wider hybrid infrastructure.
 
 The platform will use Azure monitoring services to collect:
 
@@ -247,6 +290,8 @@ The platform will use Azure monitoring services to collect:
 * Network information
 
 The goal is to provide a single operational view of the environment and make troubleshooting easier.
+
+Monitoring should also provide visibility into important dependencies between Azure workloads and on-premises infrastructure.
 
 ---
 
@@ -280,7 +325,7 @@ Infrastructure changes will be stored in Git and deployed through controlled pro
 
 ## Architecture Principles
 
-The architecture follows these principles:
+The architecture follows these principles.
 
 ### Centralize Shared Services
 
@@ -305,6 +350,10 @@ Infrastructure should be deployed consistently through code.
 ### Design for Growth
 
 The platform should support additional workloads and locations without requiring a complete redesign.
+
+### Support Hybrid Operations
+
+Azure and on-premises infrastructure should operate as part of one connected environment where required.
 
 ### Keep It Understandable
 
@@ -346,3 +395,7 @@ Detailed designs for each area are maintained in separate documentation.
 
 * [Project Overview](01-project-overview.md)
 * [Requirements](02-requirements.md)
+* [Network Design](04-network-design.md)
+* [Security Design](05-security-design.md)
+* [Identity & Access](06-identity-and-access.md)
+* [Monitoring & Logging](07-monitoring-and-logging.md)
